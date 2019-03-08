@@ -3,8 +3,22 @@
 #include "TankPlayerController.h"
 
 
+void ATankPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("Begin play"));
+	ATank* Temp = nullptr;
+	Temp = GetControlledTank();
+	if (Temp == nullptr) {
+		UE_LOG(LogTemp, Error, TEXT("Pawn is null"));
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("%s is found"), *(Temp->GetName()));
+	}
+}
 
 ATank* ATankPlayerController::GetControlledTank() const
 {
+	
 	return Cast<ATank>(GetPawn());
 }
