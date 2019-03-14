@@ -6,14 +6,14 @@
 void ATankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("Begin play"));
-	ATank* Temp = nullptr;
-	Temp = GetControlledTank();
-	if (Temp == nullptr) {
-		UE_LOG(LogTemp, Error, TEXT("Pawn is null"));
+	auto ControlledTank = GetControlledTank();
+	if (!ControlledTank)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerController not possesing a tank"));
 	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("%s is found"), *(Temp->GetName()));
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerController possesing: %s"), *(ControlledTank->GetName()));
 	}
 }
 
