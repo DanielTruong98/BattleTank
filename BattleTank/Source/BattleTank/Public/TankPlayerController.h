@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Tank.h"
-#include "DrawDebugHelpers.h"
 #include "Engine/World.h"
 #include "Containers/UnrealString.h"
 #include "GameFramework/PlayerController.h"
@@ -28,7 +27,16 @@ public:
 
 	//Start moving barrel towards crosshair direction
 	void AimTowardsCrosshair();
+
 private:
 
 	bool GetSightRayHitLocation(FVector &OutHitLocation) const;
+
+	UPROPERTY(EditAnywhere)
+	float CrossHairXLocation = 0.3f;
+
+	UPROPERTY(EditAnywhere)
+	float CrossHairYLocation = 0.33333f;
+
+	bool GetLookDirection(FVector2D ScreenLocation, FVector &LookDirection) const;
 };
