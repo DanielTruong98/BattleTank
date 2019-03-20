@@ -6,7 +6,7 @@ void ATankPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	AimTowardsCrosshair();
-	UE_LOG(LogTemp, Warning, TEXT("Tick functioning"));
+	//UE_LOG(LogTemp, Warning, TEXT("Tick functioning"));
 }
 
 
@@ -39,7 +39,7 @@ void ATankPlayerController::AimTowardsCrosshair()
 	FVector OUTHitLocation;	//Out parameter
 	if (!GetSightRayHitLocation(OUTHitLocation)) // Has "side-effect", is going to line trace
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Look direction: %s"), *(OUTHitLocation.ToString()));
+		UE_LOG(LogTemp, Warning, TEXT("HitLocation: %s"), *OUTHitLocation.ToString());
 		//Get world location through crosshair intersecting with world
 		//If linetrace hits landscape
 			//Aim at lanscape
@@ -54,27 +54,43 @@ bool ATankPlayerController::GetSightRayHitLocation(FVector &OUTHitLocation) cons
 	int32 ViewportSizeX, ViewportSizeY;
 	GetViewportSize(ViewportSizeX, ViewportSizeY);
 	auto ScreenLocation = FVector2D(ViewportSizeX * CrossHairXLocation, ViewportSizeY * CrossHairYLocation);
-	UE_LOG(LogTemp, Warning, TEXT("ScreenLocation: %s"), *(ScreenLocation.ToString()));
 
 	FVector LookDirection;
 	if (GetLookDirection(ScreenLocation, LookDirection))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("World Direction: %s"), *(LookDirection.ToString()));
+		//Line-trace along that direction, see what is hit
+		GetLookVectorHitLocation(LookDirection, OUTHitLocation);
 	}
-	
-	//Line-trace along that direction, see what is hit
 	return false;
 }
 
 //"De-project" screen position of the crosshair to a world direction
-bool ATankPlayerController::GetLookDirection(FVector2D ScreenLocation, FVector &LookDirection) const
+bool ATankPlayerController::GetLookDirection(FVector2D ScreenLocation, FVector &LookDirection)const
 {
-	FVector CameraWorldLocation;	//Discard
-	DeprojectScreenPositionToWorld(
+	FVector CameraWorldLocation;
+	return DeprojectScreenPositionToWorld(
 		ScreenLocation.X,
 		ScreenLocation.Y,
 		CameraWorldLocation,
 		LookDirection
 	);
+}
+
+bool ATankPlayerController::GetLookVectorHitLocation(FVector &LookDirection, FVector &OUTHitLocation) const
+{
+	FHitResult HitResult;
+	auto StartLocation = PlayerCameraManager->GetCameraLocation();
+	auto EndLocation = StartLocation + (LookDirection * LineTraceRange);
+	if (GetWorld()->LineTraceSingleByChannel(
+			HitResult,
+			StartLocation,
+			EndLocation,
+			ECollisionChannel::ECC_Visibility)
+		)
+		{
+		OUTHitLocation = HitResult.Location;
+		return true;
+		}
+	OUTHitLocation = FVector(0, 0, 0);
 	return false;
 }
